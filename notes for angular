@@ -1,0 +1,236 @@
+RxJS
+
+reactive x javascript
+Stream : events emited over time
+Observable : is like stream emit and also listen to events
+
+subject :
+A Subject, in contrast to an observable, is simply an observer that's also able to emit values. It's both an observable and an observer simultaneously. This is unlike an observable, as an observer that's subscribed to an observable can only read values emitted from an observable.
+
+BehaviorSubject
+We've just created a regular Subject, but what about BehaviorSubject?
+
+
+
+ReplaySubject
+BehaviorSubject is a special type of Subject whose only different is that it will emit the last value upon a new observer's subscription
+Another variation of the Subject is a ReplaySubject.
+
+It's like BehaviorSubject, except it allows you to specify a buffer, or number of emitted values to dispatch to observers. BehaviorSubject only dispatches the last emitted value, and ReplaySubject allows you to dispatch any designated number of values.
+
+Let's give it a try in our project:
+
+import { ReplaySubject } from "rxjs/ReplaySubject";
+
+// We will only return the last 2 emitted values to new observers:
+var subject = new ReplaySubject(2)
+
+BehaviorSubject is a special type of Subject whose only different is that it will emit the last value upon a new observer's subscription.
+
+========================
+to convert object to observable
+
+of
+const person : person ={
+   name : 'david'
+  };
+const personObs : Observable<person> = of(person) // create stream
+OR
+const personObs : Observable<string> = of( ' ali ' )) // create stream
+
+
+personObs .subscribe(data => console.log(data))
+
+
+
+========
+to convert promise to observable :
+
+const personPromise : Promise<Person> = Promise.resolve( person );
+const personObservable : observable = form( personPromise );
+
+==============
+ MAP( ) :
+Like Array.prototype.map(), it passes each source value through a transformation function to get corresponding output values.
+
+const sourse = of("david");
+
+
+sourse
+.pipe(
+    map(name => name.uppercase( ));
+)
+.subscribe(data => console.log( data ))
+
+-------------
+tap( )
+if you want to send data with out any change on data just send it is and you can use it in like login or send signal to service  (send data with out any change )
+sourse
+.pipe(
+    tap(name => name.uppercase( ));
+)
+.subscribe(data => console.log( data ))
+
+------------------
+spinner until the observable is full loaded 
+
+SHARE( ) :
+THE ISSUE THAT is there is alot of requests for one api and for each time send a http request 
+BUT with share we only send http request only one time
+
+const request = this.getPosts( );
+this.setLoadingSpinner(request);
+
+request.subscripe(data => {
+ this.print(data);
+});
+
+getPosts( ) : observable<Post[ ]>{
+return this.http.get<post[ ]>
+('http://www.ali.com').pipe(
+share( )
+);
+}
+ 
+setLoadingSpinner( observable :Observable<any>){
+this.loading=true;
+observable.subscribe(( ) => this.loading = false) ;
+}
+---------------
+switch map:
+call observable the stop it and then call anther one
+
+
+const postsObs = this.getPosts( )
+const combined = postsObs.pipe(
+  switchMap( posts => {
+ return commentObs
+.pipe(
+ tap(comments => {
+   console.log(comments); // First
+
+   console.log( posts ); // Socend
+})
+);
+})
+);
+
+
+
+---------------------
+debounceTime( )
+make request stop for sapicifc time
+
+search(text$: observable<string> : observable<string[]> {
+    return text$.pipe(
+      dobounceTime(500),
+      distinctUntilChanged( ),
+      switchMap(searchterm => {
+        if (!searchterm) {
+          return []
+        }
+        return this.getPosts(searchterm):
+      })
+    );
+  }
+
+-----------------------
+ngOnIt( ){
+const source = fromEvent( document , 'click'); // this first parameter to catch element and socend parameter is to event
+
+source
+.pipe(
+take(1)// get the first observable (first click)
+OR use
+first( )
+)
+.subscribe(( ) =>console.log(' clicked on document');
+}
+
+---- 
+first three
+pipe(
+takeWhile(( ) => counter > 3 )
+
+------
+get last observable
+takeLast( )
+
+------
+fire until get signal from sabject
+onStop = new Subject<void>( );
+
+sourse.pipe( takeUntil(this.onStop))
+.subscribe(() => {
+console.log('clicked on document'); });
+
+
+Stop()
+{
+  this.onStop.next();
+this.onStop.compleate( ); 
+}
+
+
+
+
+
+
+
+
+
+
+
+observable operator :
+ * concat :
+Subscribe to Observables in order but only when the previous completes, let me know, then move to the next one.
+
+// Simulate HTTP requests 
+const getPostOne$ = Rx.Observable.timer(3000).mapTo({id: 1});
+const getPostTwo$ = Rx.Observable.timer(1000).mapTo({id: 2});
+
+Rx.Observable.concat(getPostOne$, getPostTwo$).subscribe(res => console.log(res));
+
+-------------
+2. forkJoin —
+forkJoin is the Promise.all() of Rx.
+Don’t let me know until all the Observables are complete, then give me all the values at once. ( Array )
+
+const getPostOne$ = Rx.Observable.timer(1000).mapTo({id: 1});
+const getPostTwo$ = Rx.Observable.timer(2000).mapTo({id: 2});
+
+Rx.Observable.forkJoin(getPostOne$, getPostTwo$).subscribe(res => console.log(res)) 
+
+
+4. pairwise 
+Let me know when the Observable emits, but also give me the previous value. ( Array )
+
+Rx.Observable
+  .fromEvent(document, 'scroll')
+  .map(e => window.pageYOffset)
+  .pairwise()
+  .subscribe(pair => console.log(pair)); // pair[1] - pair[0]
+
+
+
+6. combineLatest —
+Let me know when any Observable emits but also give me the latest value from the others. ( Array )
+const intervalOne$ = Rx.Observable.interval(1000);
+const intervalTwo$ = Rx.Observable.interval(2000);
+
+Rx.Observable.combineLatest(
+    intervalOne$,
+    intervalTwo$ 
+).subscribe(all => console.log(all));
+
+
+
+
+
+
+
+
+
+
+
+
